@@ -43,13 +43,17 @@ in {
       type = types.attrsOf recipeType;
     };
 
+    # todo: it'd be reaaaally nice if we could have this be
+    # the same type/semantic as the overrideAttrs argument
+    # (e.g. be able to have `final: prev: { ... }`)
     derivationArgs = mkOption {
       description = ''
         The default `mkDerivation` arguments to use for recipe defined in [option]`config.rules`.
       '';
       example = {
         buildInputs = [ pkgs.hello ];
-        preBuild = "echo 'Hello, world!'";
+        preBuild = "About to build";
+        preferLocalBuild = true;
       };
       type = types.attrs;
     };

@@ -1,4 +1,4 @@
-{ callPackage, lib, pkgs }: rec {
+{ callPackage, pkgs }: rec {
   stdenv = callPackage ./stdenv.nix {};
 
   /**
@@ -44,6 +44,6 @@
   '';
 
   autoSrc = { root, name, ... }: runLocal ''
-    cp "${root}/${name}" -r $out
+    cp "${root + "/" + name}" -r $out
   '';
 }
