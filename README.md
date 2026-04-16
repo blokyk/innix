@@ -72,6 +72,18 @@ Hello, world!
 > /nix/store/hb2bs5fg5wkm04x565737qd5nh2hy5nk-gcc-wrapper-15.2.0/bin/gcc
 > ```
 
+For convenience, a *tiny* script/wrapper around `nix-build`/`nix-shell` is given
+in `nix-make.sh` (provided as the top-level attribute `cmd`), which can be
+passed the name of one or more targets to build. It'll default to reading from
+`./makefile.nix`, but can specify the file with the `-f` or `--file` option.
+It also has a special `--shell` option that allows you to get a shell for a
+derivation instead of building it. It'll also use [nix-output-monitor](https://code.maralorn.de/maralorn/nix-output-monitor) if `nom-build`/`nom-shell` is available on the path
+(use `--no-nom` to disable, or override the derivation's `nix-frontend` input
+parameter with either `pkgs.nix-output-monitor` or `pkgs.nix` (or any other
+package that provides `${nix-frontend.meta.mainProgram}-build` and `${nix-frontend.meta.mainProgram}-shell`)).
+Any other option will be passed verbtim to the underlying nom/nix command, but
+they must come after the name of the targets.
+
 > [!WARNING]
 > Oh yeah btw, this is mostly for non-flake users; all y'all flakeys out there
 > already got "flake apps" with your experiment, which I'm pretty sure can

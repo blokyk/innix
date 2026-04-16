@@ -11,6 +11,8 @@
 
   make = userMode: (this.makeConfig userMode).make;
 
+  cmd = callPackage ./nix-make.nix {};
+
   # TargetDef = Derivation | (Derivation // %output of mkTarget%)
   #
   # Recipe = [args to stdenv.mkDerivation] // {
