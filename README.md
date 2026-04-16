@@ -7,9 +7,10 @@ to just writing a Makefile, except here you can use the full power of Nix.
 It's just like writing a few `stdenv.mkDerivation`, but with 40% less headaches!
 
 ```nix
-with import <nixpkgs> {};
 let
-  innix = callPackage /* fetchFromGitHub or w/e */ {};
+  pkgs = import <nixpkgs> {};
+  innix-src = ...; # get source using npins or fetchFromGitHub or w/e
+  innix = pkgs.callPackage innix-src {};
   inherit (innix.utils) cp;
   inherit (innix.utils.stdenv) run;
 in
@@ -59,17 +60,30 @@ Hello, world!
 
 (This sample can be found in [./samples/hello-world](./samples/hello-world/)).
 
-Oh yeah btw, this is mostly for non-flake users; all y'all flakeys out there
-already got "flake apps" with your experiment, which I'm pretty sure care
-replicate most of this pretty easily, so I'm not sure you'd need this.
+> [!NOTE]
+> One nice consequence of all this just being normal nix derivations is that
+> you can very easily get into the shell you'd need to manually build a certain
+> target, simply by using the normal `nix-shell`. In a lot of cases, that means
+> you don't even need a separate `shell.nix` file anymore!
+>
+> ```sh
+> $ nix-shell -E 'import ./makefile.nix "hello.o"'
+> [nix-shell:~/dev/hello-world]$ which $CC
+> /nix/store/hb2bs5fg5wkm04x565737qd5nh2hy5nk-gcc-wrapper-15.2.0/bin/gcc
+> ```
+
+> [!WARNING]
+> Oh yeah btw, this is mostly for non-flake users; all y'all flakeys out there
+> already got "flake apps" with your experiment, which I'm pretty sure can
+> replicate most of this pretty easily, so I'm not sure you'd need this.
 
 ## What else?
 
 That's about it. It's mainly just a way to write a Makefile except:
 
-- You declare exactly what your build-time dependencies are, and Nix's runtime-
-  dependency-detection can kick in for the rest. And of course, you can use
-  `nixpkgs` or any other package repo to get your dependencies :)
+- You declare exactly what your build-time dependencies are, and Nix's
+  runtime-dependency-detection can kick in for the rest. And of course, you can
+  use `nixpkgs` or any other package repo to get your dependencies :)
 
 - You don't need to remember which of `@`/`^`/`<`/`*`/`%`/... you mean to use.
   We're not in the 70s, we can use meaningful names instead of galactic standard.
