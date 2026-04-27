@@ -44,6 +44,6 @@
   '';
 
   autoSrc = { root, name, ... }: runLocal ''
-    cp "${root + "/" + name}" -r $out
+    cp "${root + ("/" + name)}" -r $out
   '';
 }
