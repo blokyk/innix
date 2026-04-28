@@ -208,7 +208,7 @@ in {
           # thus, we can have an arbitrary number of functions that
           # can transparently request context without the consumer having
           # to care about it.
-          makeRecipe ctx (recipe ctx);
+          makeWithCtx ctx (recipe ctx);
 
       _makeFromTargetName = baseCtx: target:
         assert lib.isString target;
@@ -218,15 +218,14 @@ in {
         in
           if (exactMatch != {})
             then
-              let ctx = baseCtx // { ruleName = exactMatch.name; };
-              in makeRecipe ctx exactMatch.value
+              in makeWithCtx ctx exactMatch.value
           else if (patternMatch != {})
             then
               let ctx = baseCtx // {
                 ruleName = patternMatch.name;
                 capture = patternMatch.value.capture;
               };
-              in makeRecipe ctx patternMatch.value.recipe
+              in makeWithCtx ctx patternMatch.value.recipe
           else
               let ctx = baseCtx // {
                 ruleName = throw ''
@@ -235,7 +234,7 @@ in {
                   doesn't have a name.
                 '';
               };
-              in makeRecipe ctx (config.defaultRule target);
+              in makeWithCtx ctx (config.defaultRule target);
 
       _makeStringLike = baseCtx: target:
         # if it's just a derivation, return the derivation directly
@@ -254,9 +253,21 @@ in {
             issue if that doesn't fit.
           '';
 
+      makeWithCtx = ctx: target:
+        # not isStringLike because derivations (and paths)
+        # should not be treated as target names.
+        if (lib.isString target) then
+          _makeFromTargetName ctx target
+        else if (lib.isStringLike target) then
+          _makeStringLike ctx target
+        else if (lib.isFunction target) then
+          makeRecipe ctx target
+        else
+          throw "Cannot make a target of type '${lib.typeOf target}'. Target must be either a string, a path, or a recipe (function).";
+
       make = target:
         let
-          baseCtx = {
+          ctx = {
             dep = make;
             out = _: throw "sorry don't know how to handle multiple outputs right now :(";
             name = toString target;
@@ -264,13 +275,6 @@ in {
             derivationArgs = config.derivationArgs;
           };
         in
-        # not isStringLike because derivations (and paths)
-        # should not be treated as target names.
-        if (lib.isString target) then
-          _makeFromTargetName baseCtx target
-        else if (lib.isStringLike target) then
-          _makeStringLike baseCtx target
-        else
-          makeRecipe baseCtx target;
+          makeWithCtx ctx target;
     in make;
 }
