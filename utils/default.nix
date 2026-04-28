@@ -1,4 +1,4 @@
-{ callPackage, pkgs }: rec {
+{ callPackage, runCommand, runCommandLocal }: rec {
   stdenv = callPackage ./stdenv.nix {};
 
   /**
@@ -35,9 +35,9 @@
     '';
     ```
   */
-  run = cmd: { name, derivationArgs, ... }: pkgs.runCommand name derivationArgs cmd;
+  run = cmd: { name, derivationArgs, ... }: runCommand name derivationArgs cmd;
 
-  runLocal = cmd: { name, derivationArgs, ... }: pkgs.runCommandLocal name derivationArgs cmd;
+  runLocal = cmd: { name, derivationArgs, ... }: runCommandLocal name derivationArgs cmd;
 
   cp = path: runLocal ''
     cp ${path} -r $out

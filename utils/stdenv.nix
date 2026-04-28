@@ -1,3 +1,3 @@
-{ pkgs, ... }: {
-  run = cmd: { name, ... }: pkgs.runCommandCC name {} cmd;
+{ runCommandCC, ... }: {
+  run = cmd: { name, ... }: runCommandCC name {} cmd;
 }
