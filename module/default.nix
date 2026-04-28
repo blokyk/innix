@@ -112,7 +112,7 @@ in {
   # so as to make sure this is merged with whatever else the user specifies.
   config.derivationArgs = mkDefault {
     # by default, don't require `src` to be set
-    unpackPhase = "true";
+    dontUnpack = true;
   };
 
   config.make =
