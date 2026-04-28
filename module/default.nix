@@ -1,6 +1,6 @@
 { config, lib, pkgs, ... }: with lib;
 let
-  recipeType = with types; oneOf [(functionTo recipeType) package];
+  recipeType = with types; oneOf [(functionTo recipeType) package path];
 in {
   options = {
     root = mkOption {
@@ -240,8 +240,8 @@ in {
         # if it's just a derivation, return the derivation directly
         if (lib.isDerivation target) then
           target
-        else if (lib.isStorePath "${target}") then
-          # note: NOT `toString`! toString strips context (e.g. path-ness) from string-likes
+        else if (lib.isPath target) && (lib.isStorePath target || lib.pathExists target) then
+          # note: NOT `toString`! toString strips context (e.g. path-ness, dependency) from string-likes
           "${target}"
         else
           throw ''
