@@ -218,16 +218,22 @@ in {
         in
           if (exactMatch != {})
             then
+              let ctx = baseCtx // {
+                dep = mkDep ctx;
+                ruleName = exactMatch.name;
+              };
               in makeWithCtx ctx exactMatch.value
           else if (patternMatch != {})
             then
               let ctx = baseCtx // {
+                dep = mkDep ctx;
                 ruleName = patternMatch.name;
                 capture = patternMatch.value.capture;
               };
               in makeWithCtx ctx patternMatch.value.recipe
           else
               let ctx = baseCtx // {
+                dep = mkDep ctx;
                 ruleName = throw ''
                   Recipe tried to use the name of the invoking rule,
                   but it was invoked through the default rule, which
@@ -265,10 +271,16 @@ in {
         else
           throw "Cannot make a target of type '${lib.typeOf target}'. Target must be either a string, a path, or a recipe (function).";
 
+      mkDep = ctx: target:
+        if (lib.isStringLike target) then
+          makeWithCtx (ctx // { name = toString target; }) target
+        else
+          makeWithCtx ctx target;
+
       make = target:
         let
           ctx = {
-            dep = make;
+            dep = mkDep ctx;
             out = _: throw "sorry don't know how to handle multiple outputs right now :(";
             name = toString target;
             root = config.root;
