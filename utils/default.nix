@@ -35,15 +35,17 @@
     '';
     ```
   */
-  run = cmd: { name, derivationArgs, ... }: runCommand name derivationArgs cmd;
+  run = cmd: { name, derivationArgs, ... }:
+    runCommandLocal name derivationArgs cmd;
 
-  runLocal = cmd: { name, derivationArgs, ... }: runCommandLocal name derivationArgs cmd;
+  runRemote = cmd: { name, derivationArgs, ... }:
+    runCommand name derivationArgs cmd;
 
-  cp = path: runLocal ''
+  cp = path: run ''
     cp ${path} -r $out
   '';
 
-  autoSrc = { root, name, ... }: runLocal ''
+  autoSrc = { root, name, ... }: run ''
     cp "${root + ("/" + name)}" -r $out
   '';
 }
